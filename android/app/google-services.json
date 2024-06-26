@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "344764567081",
+    "project_id": "e-mart-task1",
+    "storage_bucket": "e-mart-task1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:344764567081:android:82fa40dca30dfde9bcd638",
+        "android_client_info": {
+          "package_name": "emart.task1.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjatB9i6tMd5HKrBJmAtRdnkmeTp562X0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
