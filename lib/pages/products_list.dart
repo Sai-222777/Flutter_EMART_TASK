@@ -1,11 +1,22 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emart/pages/product_detail.dart';
+import 'package:emart/product_service.dart';
+import 'package:emart/products.dart';
 import 'package:flutter/material.dart';
 
 
-class ProductsList extends StatelessWidget {
+class ProductsList extends StatefulWidget {
   final String category;
 
-  ProductsList({super.key, required this.category});
+  const ProductsList({super.key, required this.category});
+
+  @override
+  State<ProductsList> createState() => _ProductsListState();
+}
+
+class _ProductsListState extends State<ProductsList> {
+
+  final productService = ProductService();
 
   final List<Map<String,dynamic>> products = [
     {'id':'p1','name':'Smartphone', 'price':12000, 'category' : 'Electronics'},
@@ -25,36 +36,65 @@ class ProductsList extends StatelessWidget {
     {'id':'p15','name':'Sports Shoe', 'price':3000, 'category' : 'Sports'},
   ];
 
+  List<Product>? filteredProducts;
+
+  Future<void> updateProductByName(String name, String newName) async {
+  var querySnapshot = await FirebaseFirestore.instance
+      .collection('Products')
+      .where('name', isEqualTo: name)
+      .get();
+
+  // If the document exists, update it
+  if (querySnapshot.docs.isNotEmpty) {
+    var docId = querySnapshot.docs.first.id;
+    await FirebaseFirestore.instance
+        .collection('Products')
+        .doc(docId)
+        .update({'name': newName});
+  } else {
+    print('Document with name $name not found');
+  }
+}
+
   @override
   Widget build(BuildContext context) {
 
-    final List<Map<String, dynamic>> filteredProducts = products.where(
-      (product) => product['category'] == category).toList();
+    // final List<Map<String, dynamic>> filteredProducts = products.where(
+    //   (product) => product['category'] == category).toList();
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(category),
+        title: Text(widget.category),
       ),
-      body: ListView.builder(
-        itemCount: filteredProducts.length,
-        itemBuilder: (context,index){
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
-            child: ListTile(
-              leading: const CircleAvatar(
-                backgroundImage: AssetImage('smartphone.jpeg'),
-              ),
-              title: Text(filteredProducts[index]['name']),
-              subtitle: Text('${filteredProducts[index]['price'].toString()}/-'),
-              onTap: (){
-                Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => ProductDetail(product: filteredProducts[index])),
-                  );
-              },
-            ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('Products').where('category', isEqualTo: widget.category).snapshots(),
+        builder: (context, snapshot){
+          if(!snapshot.hasData){
+            return const Center(child: CircularProgressIndicator());
+          }
+          final filteredProducts = snapshot.data!.docs.map((doc) => Product.fromFirestore(doc)).toList();
+          return ListView.builder(
+            itemCount: filteredProducts.length,
+            itemBuilder: (context,index){
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
+                child: ListTile(
+                  leading: const CircleAvatar(
+                    backgroundImage: AssetImage('smartphone.jpeg'),
+                  ),
+                  title: Text(filteredProducts[index].name),
+                  subtitle: Text('${filteredProducts[index].price.toString()}/-'),
+                  onTap: (){
+                    Navigator.push(
+                      context, MaterialPageRoute(builder: (context) => ProductDetail(product: filteredProducts[index])),
+                      );
+                  },
+                ),
+              );
+            }
           );
         }
-        ),
+      ),
     );
     
   }

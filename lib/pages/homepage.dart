@@ -1,4 +1,5 @@
 import 'package:emart/pages/cart_page.dart';
+import 'package:emart/pages/favourites_page.dart';
 import 'package:emart/pages/loginpage.dart';
 import 'package:emart/pages/products_list.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +35,12 @@ class HomePage extends StatelessWidget {
             },
           ),
         ],
+        leading: IconButton(
+          icon: Icon(Icons.star),
+          onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context) => FavouritesPage()));
+          },
+        ),
       ),
       body:Padding(
         padding: const EdgeInsets.all(16.0),
